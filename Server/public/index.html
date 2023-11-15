@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connected devices</title>
+    <style>
+        #container{
+            display: flex;
+        }
+        .screen{
+            width: 200px;
+            height: 100px;
+            border: 2px black solid;
+            display: flex;
+            flex-direction: grid;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.1.0/uuidv4.min.js"></script>
+    <script defer>
+        screens = []
+        const container = document.getElementById("container")
+        for(let i=0;i<8;i++){
+            const socket = io()
+            const name = `AAAAA${i}`
+            socket.on("connect",()=>{
+                console.log("connected")
+            })
+            socket.on("ASK_FOR_CODE",()=>{
+                console.log("asking for code")
+                socket.emit("RECEIVE_CODE",{message:name})
+            })
+
+            
+
+            const element = document.createElement("div")
+            element.textContent = name
+            element.classList.add("screen")
+            container.append(element)
+            screens.push({
+                name,
+                socket,
+                element
+            })
+
+            socket.on("LIGHT_ON",()=>{
+                console.log("LIGHTS ON")
+                element.style.backgroundColor = "yellow"
+            })
+            
+            socket.on("LIGHT_OFF",()=>{
+                console.log("LIGHTS OFF")
+                element.style.backgroundColor = "white"
+            })
+
+            socket.on("LOCK",()=>{
+                console.log(name,"LOCK")
+            })
+
+            socket.on("UNLOCK",()=>{
+                console.log(name,"UNLOCK")
+            })
+
+            socket.on("SET_COLOR",(data)=>{
+                console.log(name,"COLOR",data)
+            })
+
+            socket.on("SET_NEW_CARD_MODE",()=>{
+                console.log(name,"SET_NEW_CARD_MODE")
+            })
+            
+            socket.on("BACK_TO_NORMAL_MODE",()=>{
+                console.log(name,"BACK_TO_NORMAL_MODE")
+            })
+        }
+    </script>
+</body>
+</html>
